@@ -9,7 +9,6 @@ from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QPushBut
 
 from SQLFunctions import loadFromPostgreSQL, createTableIfNotExists, saveValuesMQTT, saveToPostgreSQL
 
-
 class MqttClient(mqtt.Client):
     last_save_times = {}  # Initialize a dictionary to store last save times for each topic
 
@@ -38,6 +37,15 @@ class MqttClient(mqtt.Client):
         elif msg.topic == "Room/mouv":
             window.update_motion(str(msg.payload.decode()))
 
+
+def stop_scn_fcn(name):
+    print("start ", name)
+
+
+def start_scn_fcn(name):
+    print("start ", name)
+
+
 class MyApp(QWidget):
     def __init__(self, client):
         super().__init__()
@@ -57,14 +65,18 @@ class MyApp(QWidget):
 
         self.initUI()
         createTableIfNotExists()
-        loadFromPostgreSQL(tableWidget=self.tableWidget)
+        loadFromPostgreSQL(
+            tableWidget=self.tableWidget,
+            start_scn_fcn=start_scn_fcn,
+            end_scn_fcn=stop_scn_fcn
+        )
 
     def initUI(self):
         self.relay_button.clicked.connect(self.toggle_relay)
 
         self.tableWidget.setGeometry(50, 50, 400, 250)
-        self.tableWidget.setColumnCount(3)
-        self.tableWidget.setHorizontalHeaderLabels(['Name', 'Début', 'Fin'])
+        self.tableWidget.setColumnCount(4)
+        self.tableWidget.setHorizontalHeaderLabels(['Name', 'Début', 'Fin', ''])
         self.tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tableWidget.customContextMenuRequested.connect(self.showContextMenu)
         self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)

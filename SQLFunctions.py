@@ -3,10 +3,13 @@ import time
 from datetime import datetime
 
 import psycopg2
-from PyQt5.QtWidgets import QTableWidgetItem
+from PyQt5.QtWidgets import QTableWidgetItem, QPushButton
 
 
-def loadFromPostgreSQL(tableWidget):
+def handle_button_click(self):
+    print("Button clicked.")
+
+def loadFromPostgreSQL(tableWidget, start_scn_fcn, end_scn_fcn):
     try:
         # Connect to PostgreSQL database
         conn = sqlite3.connect("iot.sqlite")
@@ -23,6 +26,10 @@ def loadFromPostgreSQL(tableWidget):
             for col_index, cell_value in enumerate(row_data):
                 item = QTableWidgetItem(str(cell_value))
                 tableWidget.setItem(row_index, col_index, item)
+
+            button = QPushButton("Start")
+            button.clicked.connect(handle_button_click)
+            tableWidget.setCellWidget(row_index, 3, button)
 
         # Close the connection
         conn.close()
