@@ -2,34 +2,20 @@ import sqlite3
 import time
 from datetime import datetime
 
-import psycopg2
-from PyQt5.QtWidgets import QTableWidgetItem, QPushButton
 
-
-def handle_button_click(self):
-    print("Button clicked.")
-
-def loadFromPostgreSQL(tableWidget, start_scn_fcn, end_scn_fcn):
+def loadFromDB(scenarioTable):
     try:
-        # Connect to PostgreSQL database
-        conn = sqlite3.connect("iot.sqlite")
+        conn = sqlite3.connect("../iot.sqlite")
         # conn = psycopg2.connect(database="iot", user="iot", password="iot", host="pi", port="5432")
         cursor = conn.cursor()
-
-        # Retrieve data from the PostgreSQL table
         cursor.execute("SELECT name, begin, \"end\" FROM scenarios")
         data = cursor.fetchall()
 
         # Populate the QTableWidget with the retrieved data
-        tableWidget.setRowCount(len(data))
+        scenarioTable.setRowCount(len(data))
         for row_index, row_data in enumerate(data):
-            for col_index, cell_value in enumerate(row_data):
-                item = QTableWidgetItem(str(cell_value))
-                tableWidget.setItem(row_index, col_index, item)
-
-            button = QPushButton("Start")
-            button.clicked.connect(handle_button_click)
-            tableWidget.setCellWidget(row_index, 3, button)
+            print(row_data)
+            scenarioTable.addRow(row_index, row_data[0], row_data[1], row_data[2])
 
         # Close the connection
         conn.close()
@@ -39,7 +25,7 @@ def loadFromPostgreSQL(tableWidget, start_scn_fcn, end_scn_fcn):
 
 def createTableIfNotExists():
     try:
-        conn = sqlite3.connect("iot.sqlite")
+        conn = sqlite3.connect("../iot.sqlite")
         cursor = conn.cursor()
 
         # Create a table if it doesn't exist
@@ -52,10 +38,9 @@ def createTableIfNotExists():
         print(f"Error: {str(e)}")
 
 
-def saveToPostgreSQL(tableWidget):
+def saveToDB(tableWidget):
     try:
-        # Connect to PostgreSQL database
-        conn = sqlite3.connect("iot.sqlite")
+        conn = sqlite3.connect("../iot.sqlite")
         # conn = psycopg2.connect(database="iot", user="iot", password="iot", host="pi", port="5432")
         cursor = conn.cursor()
 
@@ -90,7 +75,7 @@ def saveValuesMQTT(message):
     try:
         payload = message.payload.decode("utf-8")
         timestamp = datetime.now()
-        conn = sqlite3.connect("iot.sqlite")
+        conn = sqlite3.connect("../iot.sqlite")
         cursor = conn.cursor()
 
         cursor.execute(
